@@ -3,7 +3,7 @@ module Cellgraph
     extend ActiveSupport::Concern
 
     included do
-      after_update CellgraphCallbacks
+      after_save CellgraphCallbacks
       before_destroy CellgraphCallbacks
       after_destroy CellgraphCallbacks
     end
@@ -49,8 +49,9 @@ module Cellgraph
       true
     end
 
+    # Queries registered listeners for this model.
+    # Returns false if any listener objects to deletion.
     def query_deletion_listeners
-      # check config mapping
       name = ActiveModel::Naming.singular(self)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
         fail "Only one to one mapping allowed currently" if Cellgraph.configuration.mappings[name.to_sym].count > 1
@@ -58,7 +59,7 @@ module Cellgraph
         return Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Celluloid::Actor[listener.to_sym]
         }.map { |listener|
-          Celluloid::Actor[listener.to_sym].future.delete(self)
+          Celluloid::Actor[listener.to_sym].future.deletable?(self)
         }.all? { |future|
           future.value === true
         }

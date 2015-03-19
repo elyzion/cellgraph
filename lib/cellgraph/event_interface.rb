@@ -1,20 +1,20 @@
 module Cellgraph
   class EventInterface
-    def update(payload)
+    def saved(payload)
       true
     end
 
-    def addressed_update(name, id, payload)
-      true
-    end
-
-    # Delete event
-    def delete(payload)
+    def addressed_saved(name, id, payload)
       true
     end
 
     # Delete event
-    def addressed_delete(name, id, payload)
+    def deleted(payload)
+      true
+    end
+
+    # Delete event
+    def addressed_deleted(name, id, payload)
       true
     end
 

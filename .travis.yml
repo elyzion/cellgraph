@@ -1,6 +1,8 @@
 language: ruby
 rvm:
-- 2.2.0
+  - 2.2.0
+before_script:
+  - cp spec/config/database.json.sample spec/config/database.json
 deploy:
   provider: rubygems
   api_key:

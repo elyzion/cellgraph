@@ -41,7 +41,7 @@ module Cellgraph
     class CustomizedChildableActor < EventInterface
       include Celluloid
 
-      def delete(something)
+      def deletable?(something)
         false
       end
     end
@@ -141,7 +141,7 @@ module Cellgraph
       end
       it "return true when no listener protests" do
         instance = NotChildable.new
-        expect_any_instance_of(EventInterface).to receive(:delete).and_call_original
+        expect_any_instance_of(EventInterface).to receive(:deletable?).and_call_original
         expect(instance.send("query_deletion_listeners")).to be_truthy
       end
       it "returns false when a listener protests" do
@@ -159,19 +159,32 @@ module Cellgraph
     end
 
     describe "callbacks" do
-      describe "before_update" do
-        it "should run the proper callbacks" do
-          pending("Model callback executes in debug, but test fails with missing method..")
+      before {
+        Cellgraph.configure do |config|
+          config.mappings = {
+            not_childable:
+              [
+                :standard_childable
+              ]
+          }
+        end
+        ActorGroup.run!
+      }
+
+      describe "saving with a parent" do
+        it "should execute the after_save callback" do
+          parent = NotChildable.new
+          parent.save
           model = StandardChildable.new
-          model.save
-          model.parentable_type = 2
-          expect(model).to receive(:after_validation).and_call_original
+          expect_any_instance_of(EventInterface).to receive(:addressed_saved).and_call_original
+          model.parentable_type = "NotChildable"
+          model.parentable_id = parent.id
           model.save
         end
       end
 
-      describe "before_destroy" do
-        it "should run the proper callbacks" do
+      describe "deleting with a parent" do
+        it "should execute the after_save callback" do
           pending("Model callback executes in debug, but test fails with missing method..")
           model = StandardChildable.new
           model.save
