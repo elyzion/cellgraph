@@ -1,0 +1,72 @@
+module Cellgraph
+  module ActsAsCellgraph
+    extend ActiveSupport::Concern
+
+    included do
+      after_update CellgraphCallbacks
+      before_destroy CellgraphCallbacks
+      after_destroy CellgraphCallbacks
+    end
+
+    module ClassMethods
+      def acts_as_cellgraph(options = {})
+        cattr_accessor :cellgraph_field
+        cattr_accessor :cellgraph_field_type
+        cattr_accessor :cellgraph_field_id
+
+        self.cellgraph_field = (options[:cellgraph_field] || Cellgraph.configuration[:cellgraph_field] ).to_s
+        self.cellgraph_field_type = "#{self.cellgraph_field}_type"
+        self.cellgraph_field_id = "#{ self.cellgraph_field}_id"
+      end
+    end
+
+    # Return true if this record is deletable.
+    # A deletable record is defined as a record
+    # that:
+    # 1) Has no cellgraph_field
+    # 2) and/or has no listener that object to the deletion.
+    def deletable?
+      has_null_cellgraph_field && !query_deletion_listeners
+    end
+
+    # Same as deletable, but returns reasons for denial.
+    # TODO Detailed reasons for denial.
+    def deletable; deletable? end
+
+    alias :destroyable? :deletable?
+    alias :destroyable :deletable?
+    alias :destroyable :deletable
+
+    private
+
+    # Check if the id column is present and not null
+    def has_null_cellgraph_field
+      # TODO Detailed reasons for denial.
+      if self.class.send("method_defined?", self.cellgraph_field_id) && !self.send(self.cellgraph_field_id).nil?
+        return false
+      end
+      Cellgraph.configuration.logger.debug "No or null cellgraph field, no parent."
+      true
+    end
+
+    def query_deletion_listeners
+      # check config mapping
+      name = ActiveModel::Naming.singular(self)
+      if Cellgraph.configuration.mappings.key?(name.to_sym)
+        fail "Only one to one mapping allowed currently" if Cellgraph.configuration.mappings[name.to_sym].count > 1
+        # TODO Detailed reasons for denial.
+        return Cellgraph.configuration.mappings[name.to_sym].select { |listener|
+          Celluloid::Actor[listener.to_sym]
+        }.map { |listener|
+          Celluloid::Actor[listener.to_sym].future.delete(self)
+        }.all? { |future|
+          future.value === true
+        }
+      end
+      Cellgraph.configuration.logger.warn "No listener(s) registered for #{name}"
+      true
+    end
+  end
+end
+
+ActiveRecord::Base.send :include, Cellgraph::ActsAsCellgraph

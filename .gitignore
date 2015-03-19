@@ -1,0 +1,6 @@
+.bundle/
+atlassian-ide-plugin.xml
+.idea
+coverage/
+log/
+cellgraph.log
