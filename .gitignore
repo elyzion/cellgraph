@@ -2,6 +2,6 @@
 atlassian-ide-plugin.xml
 .idea
 coverage/
-log/
+log/*
 cellgraph.log
 spec/config/database.json
