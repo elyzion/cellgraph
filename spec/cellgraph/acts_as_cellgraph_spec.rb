@@ -56,7 +56,6 @@ module Cellgraph
       supervise NotChildableActor, as: :not_childable
     end
 
-
     before :example do
       Cellgraph.reset
       Celluloid.boot
@@ -64,6 +63,11 @@ module Cellgraph
 
     after :example do
       Celluloid.shutdown
+      Celluloid.actor_system = nil
+      Thread.list.each do |thread|
+        next if thread == Thread.current
+        thread.kill
+      end
     end
 
     describe "model without customization" do
@@ -84,11 +88,23 @@ module Cellgraph
       end
     end
 
+    describe "various model forms can be used at the same time" do
+      it "uses :parentable" do
+        expect(StandardChildable.cellgraph_field).to eq "parentable"
+      end
+      it "uses :something" do
+        expect(CustomizedChildable.cellgraph_field).to eq "something"
+      end
+      it "has no field defined" do
+        expect(NotChildable.send("method_defined?", NotChildable.cellgraph_field_id)).to be_falsey
+      end
+    end
+
     describe ".deletable" do
       it "calls has_null_cellgraph_field and query_deletion_listeners" do
         instance = StandardChildable.new
-        expect(instance).to receive(:has_null_cellgraph_field).and_call_original
-        expect(instance).to receive(:query_deletion_listeners).and_call_original
+        expect(instance).to receive(:has_null_cellgraph_field).and_return(true)
+        expect(instance).to receive(:query_deletion_listeners).and_return(true)
         instance.deletable?
       end
     end
@@ -141,7 +157,7 @@ module Cellgraph
       end
       it "return true when no listener protests" do
         instance = NotChildable.new
-        expect_any_instance_of(EventInterface).to receive(:deletable?).and_call_original
+        expect_any_instance_of(EventInterface).to receive(:deletable?).and_return(true)
         expect(instance.send("query_deletion_listeners")).to be_truthy
       end
       it "returns false when a listener protests" do
@@ -176,7 +192,7 @@ module Cellgraph
           parent = NotChildable.new
           parent.save
           model = StandardChildable.new
-          expect_any_instance_of(EventInterface).to receive(:addressed_saved).and_call_original
+          expect_any_instance_of(EventInterface).to receive(:addressed_saved).and_return(true)
           model.parentable_type = "NotChildable"
           model.parentable_id = parent.id
           model.save
@@ -193,7 +209,6 @@ module Cellgraph
         end
       end
     end
-
 
   end
 end

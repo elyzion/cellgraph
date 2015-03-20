@@ -26,27 +26,6 @@ $CELLULOID_DEBUG = true
 RSpec.configure do |config|
   config.extend WithModel
 
-  # config.around do |ex|
-  #   Celluloid.actor_system = nil
-  #   Thread.list.each do |thread|
-  #     next if thread == Thread.current
-  #     thread.kill
-  #   end
-  #   ex.run
-  # end
-  #
-  # config.around actor_system: :global do |ex|
-  #   Celluloid.boot
-  #   ex.run
-  #   Celluloid.shutdown
-  # end
-  #
-  # config.around actor_system: :within do |ex|
-  #   Celluloid::ActorSystem.new.within do
-  #     ex.run
-  #   end
-  # end
-
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
