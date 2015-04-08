@@ -30,7 +30,7 @@ module Cellgraph
       end
 
       model do |t|
-        acts_as_cellgraph
+        acts_as_cellgraph :parentless
       end
     end
 
@@ -84,7 +84,7 @@ module Cellgraph
 
     describe "model without cellgraph_field" do
       it "has no field defined" do
-        expect(NotChildable.send("method_defined?", NotChildable.cellgraph_field_id)).to be_falsey
+        expect(NotChildable.send("method_defined?", "cellgraph_field_id")).to be_falsey
       end
     end
 
@@ -96,7 +96,7 @@ module Cellgraph
         expect(CustomizedChildable.cellgraph_field).to eq "something"
       end
       it "has no field defined" do
-        expect(NotChildable.send("method_defined?", NotChildable.cellgraph_field_id)).to be_falsey
+        expect(NotChildable.send("method_defined?", "cellgraph_field_id")).to be_falsey
       end
     end
 

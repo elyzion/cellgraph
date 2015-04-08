@@ -10,20 +10,22 @@ module Cellgraph
 
     module ClassMethods
       def acts_as_cellgraph(options = {})
-        cattr_accessor :cellgraph_field
-        cattr_accessor :cellgraph_field_type
-        cattr_accessor :cellgraph_field_id
+        unless options.is_a?(Symbol) && options === :parentless
+          cattr_accessor :cellgraph_field
+          cattr_accessor :cellgraph_field_type
+          cattr_accessor :cellgraph_field_id
 
-        self.cellgraph_field = (options[:cellgraph_field] || Cellgraph.configuration[:cellgraph_field] ).to_s
-        self.cellgraph_field_type = "#{self.cellgraph_field}_type"
-        self.cellgraph_field_id = "#{ self.cellgraph_field}_id"
+          self.cellgraph_field = (options[:cellgraph_field] || Cellgraph.configuration[:cellgraph_field]).to_s
+          self.cellgraph_field_type = "#{self.cellgraph_field}_type"
+          self.cellgraph_field_id = "#{ self.cellgraph_field}_id"
+        end
       end
     end
 
     # Return true if this record is deletable.
     # A deletable record is defined as a record
     # that:
-    # 1) Has no cellgraph_field
+    # 1) Has no cellgraph_field, ie, no parent.
     # 2) and/or has no listener that object to the deletion.
     def deletable?
       has_null_cellgraph_field && !query_deletion_listeners
@@ -31,7 +33,9 @@ module Cellgraph
 
     # Same as deletable, but returns reasons for denial.
     # TODO Detailed reasons for denial.
-    def deletable; deletable? end
+    def deletable;
+      deletable?
+    end
 
     alias :destroyable? :deletable?
     alias :destroyable :deletable?
@@ -42,7 +46,7 @@ module Cellgraph
     # Check if the id column is present and not null
     def has_null_cellgraph_field
       # TODO Detailed reasons for denial.
-      if self.class.send("method_defined?", self.cellgraph_field_id) && !self.send(self.cellgraph_field_id).nil?
+      if self.class.send("method_defined?", "cellgraph_field_id") && self.class.send("method_defined?", self.cellgraph_field_id) && !self.send(self.cellgraph_field_id).nil?
         return false
       end
       Cellgraph.configuration.logger.debug "No or null cellgraph field, no parent."
