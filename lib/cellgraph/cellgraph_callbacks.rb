@@ -17,7 +17,7 @@ module Cellgraph
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
         fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Celluloid::Actor[parent.to_sym]
-        return Celluloid::Actor[parent.to_sym].addressed_saved(instance.cellgraph_field_id, instance.cellgraph_field_type, instance)
+        return Celluloid::Actor[parent.to_sym].addressed_saved(instance.send(instance.cellgraph_field_id), instance.send(instance.cellgraph_field_type), instance)
       end
       true
     end
@@ -49,7 +49,7 @@ module Cellgraph
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
         fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Celluloid::Actor[parent.to_sym]
-        return Celluloid::Actor[parent.to_sym].addressed_deleted(instance.cellgraph_field_id, instance.cellgraph_field_type, instance)
+        return Celluloid::Actor[parent.to_sym].addressed_deleted(instance.send(instance.cellgraph_field_id), instance.send(instance.cellgraph_field_type), instance)
       end
     end
   end
