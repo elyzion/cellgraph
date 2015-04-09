@@ -10,7 +10,7 @@ module Cellgraph
 
     module ClassMethods
       def acts_as_cellgraph(options = {})
-        if options.is_a?(Hash)
+        unless options.is_a?(Symbol) && options === :parentless
           cattr_accessor :cellgraph_field
           cattr_accessor :cellgraph_field_type
           cattr_accessor :cellgraph_field_id
