@@ -38,7 +38,7 @@ module Cellgraph
       "cellgraph.log"
     end
     config_accessor :logger do
-      if defined? Rails
+      if defined?(Rails) && Rails.try?("logger")
         Rails.logger
       else
         Logger.new(Cellgraph.configuration.log_path)
