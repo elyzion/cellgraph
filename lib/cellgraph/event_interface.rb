@@ -1,4 +1,6 @@
 module Cellgraph
+  # Defines the event interface used by Cellgraph actors
+  # Addressed version are invoked by children on their parents.
   class EventInterface
     # Invoked after payload is saved.
     # Return any non truthy value to cause a rollback.

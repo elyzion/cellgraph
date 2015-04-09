@@ -11,13 +11,13 @@ module Cellgraph
         return false unless Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Celluloid::Actor[listener.to_sym]
         }.each { |listener|
-          Celluloid::Actor[listener.to_sym].saved(self)
+          Celluloid::Actor[listener.to_sym].saved(instance)
         }
       end
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
         fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Celluloid::Actor[parent.to_sym]
-        return Celluloid::Actor[parent.to_sym].addressed_saved(instance.cellgraph_field_id, instance.cellgraph_field_type, self)
+        return Celluloid::Actor[parent.to_sym].addressed_saved(instance.cellgraph_field_id, instance.cellgraph_field_type, instance)
       end
       true
     end
@@ -40,7 +40,7 @@ module Cellgraph
         Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Celluloid::Actor[listener.to_sym]
         }.each { |listener|
-          unless Celluloid::Actor[listener.to_sym].deleted(self)
+          unless Celluloid::Actor[listener.to_sym].deleted(instance)
             fail "Deletion listener failed"
           end
         }
@@ -49,7 +49,7 @@ module Cellgraph
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
         fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Celluloid::Actor[parent.to_sym]
-        return Celluloid::Actor[parent.to_sym].addressed_deleted(instance.cellgraph_field_id, instance.cellgraph_field_type, self)
+        return Celluloid::Actor[parent.to_sym].addressed_deleted(instance.cellgraph_field_id, instance.cellgraph_field_type, instance)
       end
     end
   end
