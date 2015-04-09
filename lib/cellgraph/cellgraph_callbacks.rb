@@ -24,10 +24,7 @@ module Cellgraph
 
     # Checks that destroy method execution is allowed.
     def self.before_destroy(instance)
-      if instance.deletable?
-        return true
-      end
-      false
+      instance.deletable?
     end
 
     # If the instance was destroyed, signal all interested parties that it was destroyed.

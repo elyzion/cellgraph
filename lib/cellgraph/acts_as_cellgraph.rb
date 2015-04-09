@@ -28,7 +28,7 @@ module Cellgraph
     # 1) Has no cellgraph_field, ie, no parent.
     # 2) and/or has no listener that object to the deletion.
     def deletable?
-      has_null_cellgraph_field && !query_deletion_listeners
+      has_null_cellgraph_field && query_deletion_listeners
     end
 
     # Same as deletable, but returns reasons for denial.
