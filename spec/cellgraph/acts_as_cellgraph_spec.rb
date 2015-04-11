@@ -142,19 +142,6 @@ module Cellgraph
         instance = StandardChildable.new # doesn't have any listener defined.
         expect(instance.send("query_deletion_listeners")).to be_truthy
       end
-      it "disallows more than one listener" do
-        Cellgraph.configure do |config|
-          config.mappings = {
-            not_childable:
-              [
-                :standard_childable,
-                :customized_childable
-              ]
-          }
-        end
-        instance = NotChildable.new
-        expect{instance.send("query_deletion_listeners")}.to raise_error
-      end
       it "return true when no listener protests" do
         instance = NotChildable.new
         expect_any_instance_of(EventInterface).to receive(:deletable?).and_return(true)

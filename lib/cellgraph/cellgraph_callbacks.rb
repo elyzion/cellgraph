@@ -7,7 +7,6 @@ module Cellgraph
       # TODO refactor shared code
       name = ActiveModel::Naming.singular(instance)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
-        fail "Only one to one mapping allowed currently" if Cellgraph.configuration.mappings[name.to_sym].count > 1
         return false unless Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Celluloid::Actor[listener.to_sym]
         }.each { |listener|
@@ -33,7 +32,6 @@ module Cellgraph
       # TODO refactor shared code
       name = ActiveModel::Naming.singular(instance)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
-        fail "Only one to one mapping allowed currently" if Cellgraph.configuration.mappings[name.to_sym].count > 1
         Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Celluloid::Actor[listener.to_sym]
         }.each { |listener|

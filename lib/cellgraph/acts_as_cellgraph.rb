@@ -58,8 +58,6 @@ module Cellgraph
     def query_deletion_listeners
       name = ActiveModel::Naming.singular(self)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
-        fail "Only one to one mapping allowed currently" if Cellgraph.configuration.mappings[name.to_sym].count > 1
-        # TODO Detailed reasons for denial.
         return Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Celluloid::Actor[listener.to_sym]
         }.map { |listener|
