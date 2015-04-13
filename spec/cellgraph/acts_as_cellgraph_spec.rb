@@ -35,11 +35,9 @@ module Cellgraph
     end
 
     class StandardChildableListener < EventInterface
-      # include Celluloid
     end
 
     class CustomizedChildableListener < EventInterface
-      # include Celluloid
 
       def deletable?(something)
         false
@@ -47,28 +45,7 @@ module Cellgraph
     end
 
     class NotChildableListener < EventInterface
-      # include Celluloid
     end
-
-    # class ActorGroup < Celluloid::SupervisionGroup
-    #   supervise StandardChildableActor, as: :standard_childable
-    #   supervise CustomizedChildableActor, as: :customized_childable
-    #   supervise NotChildableActor, as: :not_childable
-    # end
-
-    # before :example do
-    #   Cellgraph.reset
-    #   Celluloid.boot
-    # end
-    #
-    # after :example do
-    #   Celluloid.shutdown
-    #   Celluloid.actor_system = nil
-    #   Thread.list.each do |thread|
-    #     next if thread == Thread.current
-    #     thread.kill
-    #   end
-    # end
 
     describe "model without customization" do
       it "uses :parentable" do
@@ -138,7 +115,6 @@ module Cellgraph
           Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
           config.dispatcher = Dispatcher::instance
         end
-        # ActorGroup.run!
       }
       it "return true when there are no listener" do
         instance = StandardChildable.new # doesn't have any listener defined.
@@ -178,7 +154,6 @@ module Cellgraph
           Dispatcher::register_listener(:not_childable, NotChildableListener.new)
           config.dispatcher = Dispatcher::instance
         end
-        # ActorGroup.run!
       }
 
       describe "saving with a parent" do
