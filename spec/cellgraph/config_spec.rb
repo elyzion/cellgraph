@@ -46,9 +46,9 @@ module Cellgraph
         class StubDispatcher < Cellgraph::Dispatcher
         end
         Cellgraph.configure do |config|
-          config.dispatcher = StubDispatcher
+          config.dispatcher = StubDispatcher.instance
         end
-        expect(Cellgraph.configuration.dispatcher).to be StubDispatcher
+        expect(Cellgraph.configuration.dispatcher).to be_an_instance_of(StubDispatcher)
       end
     end
 

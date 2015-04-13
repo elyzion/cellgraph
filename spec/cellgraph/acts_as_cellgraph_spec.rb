@@ -34,41 +34,41 @@ module Cellgraph
       end
     end
 
-    class StandardChildableActor < EventInterface
-      include Celluloid
+    class StandardChildableListener < EventInterface
+      # include Celluloid
     end
 
-    class CustomizedChildableActor < EventInterface
-      include Celluloid
+    class CustomizedChildableListener < EventInterface
+      # include Celluloid
 
       def deletable?(something)
         false
       end
     end
 
-    class NotChildableActor < EventInterface
-      include Celluloid
+    class NotChildableListener < EventInterface
+      # include Celluloid
     end
 
-    class ActorGroup < Celluloid::SupervisionGroup
-      supervise StandardChildableActor, as: :standard_childable
-      supervise CustomizedChildableActor, as: :customized_childable
-      supervise NotChildableActor, as: :not_childable
-    end
+    # class ActorGroup < Celluloid::SupervisionGroup
+    #   supervise StandardChildableActor, as: :standard_childable
+    #   supervise CustomizedChildableActor, as: :customized_childable
+    #   supervise NotChildableActor, as: :not_childable
+    # end
 
-    before :example do
-      Cellgraph.reset
-      Celluloid.boot
-    end
-
-    after :example do
-      Celluloid.shutdown
-      Celluloid.actor_system = nil
-      Thread.list.each do |thread|
-        next if thread == Thread.current
-        thread.kill
-      end
-    end
+    # before :example do
+    #   Cellgraph.reset
+    #   Celluloid.boot
+    # end
+    #
+    # after :example do
+    #   Celluloid.shutdown
+    #   Celluloid.actor_system = nil
+    #   Thread.list.each do |thread|
+    #     next if thread == Thread.current
+    #     thread.kill
+    #   end
+    # end
 
     describe "model without customization" do
       it "uses :parentable" do
@@ -135,8 +135,10 @@ module Cellgraph
                 :standard_childable
               ]
           }
+          Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
+          config.dispatcher = Dispatcher::instance
         end
-        ActorGroup.run!
+        # ActorGroup.run!
       }
       it "return true when there are no listener" do
         instance = StandardChildable.new # doesn't have any listener defined.
@@ -155,6 +157,8 @@ module Cellgraph
                 :customized_childable
               ]
           }
+          Dispatcher::register_listener(:customized_childable, CustomizedChildableListener.new)
+          config.dispatcher = Dispatcher::instance
         end
         instance = NotChildable.new
         expect(instance.send("query_deletion_listeners")).to be_falsey
@@ -170,12 +174,15 @@ module Cellgraph
                 :standard_childable
               ]
           }
+          Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
+          Dispatcher::register_listener(:not_childable, NotChildableListener.new)
+          config.dispatcher = Dispatcher::instance
         end
-        ActorGroup.run!
+        # ActorGroup.run!
       }
 
       describe "saving with a parent" do
-        it "should execute the after_save callback" do
+        it "should execute the addressed_saved callback" do
           parent = NotChildable.new
           parent.save
           model = StandardChildable.new
@@ -186,13 +193,17 @@ module Cellgraph
         end
       end
 
-      describe "deleting with a parent" do
-        it "should execute the after_save callback" do
-          pending("Model callback executes in debug, but test fails with missing method..")
+      describe "deleting a parent" do
+        it "frees the child" do
+          parent = NotChildable.new
+          parent.save
           model = StandardChildable.new
+          model.parentable_type = "NotChildable"
+          model.parentable_id = parent.id
           model.save
-          expect(model).to receive(:before_destroy).and_call_original
-          model.destroy
+
+          expect_any_instance_of(EventInterface).to receive(:deleted).and_return(true)
+          parent.destroy
         end
       end
     end

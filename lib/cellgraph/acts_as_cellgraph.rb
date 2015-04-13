@@ -59,11 +59,11 @@ module Cellgraph
       name = ActiveModel::Naming.singular(self)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
         return Cellgraph.configuration.mappings[name.to_sym].select { |listener|
-          Celluloid::Actor[listener.to_sym]
+          Cellgraph.configuration.dispatcher[listener.to_sym]
         }.map { |listener|
-          Celluloid::Actor[listener.to_sym].future.deletable?(self)
-        }.all? { |future|
-          future.value === true
+          Cellgraph.configuration.dispatcher[listener.to_sym].deletable?(self)
+        }.all? { |value|
+          value === true
         }
       end
       Cellgraph.configuration.logger.warn "No listener(s) registered for #{name}"
