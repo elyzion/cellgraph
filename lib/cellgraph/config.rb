@@ -27,6 +27,9 @@ module Cellgraph
   class Configuration #:nodoc:
     include ActiveSupport::Configurable
 
+    config_accessor :dispatcher do
+      Cellgraph::Dispatcher.instance
+    end
     # Maps models to actor listeners OR we can have one actor registered
     config_accessor :mappings do
       {}

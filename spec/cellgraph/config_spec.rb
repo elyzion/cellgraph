@@ -37,6 +37,21 @@ module Cellgraph
       end
     end
 
+    describe "#dispatcher" do
+      it "defaults to the basic dispatcher instance." do
+        expect(Cellgraph.configuration.dispatcher).to be_an_instance_of(Cellgraph::Dispatcher)
+      end
+
+      it "can be configured with a custom dispatcher" do
+        class StubDispatcher < Cellgraph::Dispatcher
+        end
+        Cellgraph.configure do |config|
+          config.dispatcher = StubDispatcher
+        end
+        expect(Cellgraph.configuration.dispatcher).to be StubDispatcher
+      end
+    end
+
     describe "#mappings" do
       it "defaults to nothing" do
         expect(Cellgraph.configuration.mappings).to eq({})
