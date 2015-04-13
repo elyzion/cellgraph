@@ -15,7 +15,9 @@ module Cellgraph
       end
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
-        fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Cellgraph.configuration.dispatcher[parent.to_sym]
+        unless Cellgraph.configuration.dispatcher[parent.to_sym]
+          fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}, please add an entry for this parent to you dispatcher."
+        end
         return Cellgraph.configuration.dispatcher[parent.to_sym].addressed_saved(instance.send(instance.cellgraph_field_type), instance.send(instance.cellgraph_field_id), instance)
       end
       true
