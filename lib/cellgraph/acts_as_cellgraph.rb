@@ -3,7 +3,8 @@ module Cellgraph
     extend ActiveSupport::Concern
 
     included do
-      after_save CellgraphCallbacks
+      after_create CellgraphCallbacks
+      after_update CellgraphCallbacks
       before_destroy CellgraphCallbacks
       after_destroy CellgraphCallbacks
     end
