@@ -10,12 +10,7 @@ require 'cellgraph/mock/listener'
 module Cellgraph
   # Get dispatcher.
   def self.dispatcher
-    @dispatcher ||= Cellgraph::Dispatcher.instance
-  end
-
-  # Set dispatcher.
-  def self.dispatcher=(value)
-    @dispatcher = value
+    configuration.dispatcher
   end
 
   # Return the current configuration or a new one.
@@ -37,6 +32,6 @@ module Cellgraph
   end
 
   def self.mock!
-    @dispatcher = Cellgraph::Mock::Dispatcher.new
+    configuration.dispatcher = Cellgraph::Mock::Dispatcher.new
   end
 end
