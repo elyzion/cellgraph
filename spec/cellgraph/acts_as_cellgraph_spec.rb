@@ -135,8 +135,7 @@ module Cellgraph
                 :standard_childable
               ]
           }
-          Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
-          Cellgraph.dispatcher = Dispatcher::instance
+          Cellgraph.dispatcher.register_listener(:standard_childable, StandardChildableListener.new)
         end
         # ActorGroup.run!
       }
@@ -157,8 +156,7 @@ module Cellgraph
                 :customized_childable
               ]
           }
-          Dispatcher::register_listener(:customized_childable, CustomizedChildableListener.new)
-          Cellgraph.dispatcher = Dispatcher::instance
+          Cellgraph.dispatcher.register_listener(:customized_childable, CustomizedChildableListener.new)
         end
         instance = NotChildable.new
         expect(instance.send("query_deletion_listeners")).to be_falsey
@@ -174,9 +172,8 @@ module Cellgraph
                 :standard_childable
               ]
           }
-          Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
-          Dispatcher::register_listener(:not_childable, NotChildableListener.new)
-          Cellgraph.dispatcher = Dispatcher::instance
+          Cellgraph.dispatcher.register_listener(:standard_childable, StandardChildableListener.new)
+          Cellgraph.dispatcher.register_listener(:not_childable, NotChildableListener.new)
         end
         # ActorGroup.run!
       }
