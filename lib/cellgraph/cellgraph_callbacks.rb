@@ -22,18 +22,18 @@ module Cellgraph
       name = ActiveModel::Naming.singular(instance)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
         return false unless Cellgraph.configuration.mappings[name.to_sym].select { |listener|
-          Cellgraph.configuration.dispatcher[listener.to_sym]
+          Cellgraph.dispatcher[listener.to_sym]
         }.each { |listener|
-          Cellgraph.configuration.dispatcher[listener.to_sym].send(method, instance)
+          Cellgraph.dispatcher[listener.to_sym].send(method, instance)
         }
       end
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
-        unless Cellgraph.configuration.dispatcher[parent.to_sym]
+        unless Cellgraph.dispatcher[parent.to_sym]
           fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}, please add an entry for this parent to you dispatcher."
         end
         addressed_method = "addressed_#{method}"
-        return Cellgraph.configuration.dispatcher[parent.to_sym].send(addressed_method, instance.send(instance.cellgraph_field_type), instance.send(instance.cellgraph_field_id), instance)
+        return Cellgraph.dispatcher[parent.to_sym].send(addressed_method, instance.send(instance.cellgraph_field_type), instance.send(instance.cellgraph_field_id), instance)
       end
       true
     end
@@ -50,9 +50,9 @@ module Cellgraph
       name = ActiveModel::Naming.singular(instance)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
         Cellgraph.configuration.mappings[name.to_sym].select { |listener|
-          Cellgraph.configuration.dispatcher[listener.to_sym]
+          Cellgraph.dispatcher[listener.to_sym]
         }.each { |listener|
-          unless Cellgraph.configuration.dispatcher[listener.to_sym].deleted(instance)
+          unless Cellgraph.dispatcher[listener.to_sym].deleted(instance)
             fail "Deletion listener failed"
           end
         }
@@ -60,8 +60,8 @@ module Cellgraph
 
       unless instance.send("has_null_cellgraph_field")
         parent = instance.send(instance.cellgraph_field_type).constantize.model_name.singular
-        fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Cellgraph.configuration.dispatcher[parent.to_sym]
-        return Cellgraph.configuration.dispatcher[parent.to_sym].addressed_deleted(instance.send(instance.cellgraph_field_type), instance.send(instance.cellgraph_field_id), instance)
+        fail "Missing parent (#{instance.cellgraph_field_id}, #{instance.cellgraph_field_type}) for #{parent}" unless Cellgraph.dispatcher[parent.to_sym]
+        return Cellgraph.dispatcher[parent.to_sym].addressed_deleted(instance.send(instance.cellgraph_field_type), instance.send(instance.cellgraph_field_id), instance)
       end
     end
   end
