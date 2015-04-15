@@ -186,7 +186,7 @@ module Cellgraph
           parent = NotChildable.new
           parent.save
           model = StandardChildable.new
-          expect_any_instance_of(EventInterface).to receive(:addressed_saved).and_return(true)
+          expect_any_instance_of(EventInterface).to receive(:addressed_created).and_return(true)
           model.parentable_type = "NotChildable"
           model.parentable_id = parent.id
           model.save
