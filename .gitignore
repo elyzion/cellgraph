@@ -6,3 +6,4 @@ coverage/
 log/*
 cellgraph.log
 spec/config/database.json
+vendor/bundle
