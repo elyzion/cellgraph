@@ -3,6 +3,7 @@ require "bundler/setup"
 require "simplecov"
 require "with_model"
 require 'celluloid/test'
+require "cellgraph"
 
 SimpleCov.start do
   add_filter "spec"
@@ -41,6 +42,10 @@ RSpec.configure do |config|
   end
 
   config.order = :random
+
+  config.before(:each) do
+    Cellgraph.reset
+  end
 
   Kernel.srand config.seed
 end

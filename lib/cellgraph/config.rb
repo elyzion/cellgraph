@@ -17,6 +17,10 @@ module Cellgraph
       'cellgraph.log'
     end
 
+    config_accessor :dispatcher do
+      Dispatcher.instance
+    end
+
     config_accessor :logger do
       if defined?(Rails) && !Rails.logger.nil?
         Rails.logger
