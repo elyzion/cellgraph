@@ -1,5 +1,4 @@
 require "spec_helper"
-require "cellgraph"
 
 describe Cellgraph::Mock::Listener do
   describe "#invoked_times" do
