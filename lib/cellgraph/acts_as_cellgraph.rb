@@ -3,7 +3,8 @@ module Cellgraph
     extend ActiveSupport::Concern
 
     included do
-      after_save CellgraphCallbacks
+      after_create CellgraphCallbacks
+      after_update CellgraphCallbacks
       before_destroy CellgraphCallbacks
       after_destroy CellgraphCallbacks
     end
@@ -59,9 +60,9 @@ module Cellgraph
       name = ActiveModel::Naming.singular(self)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
         return Cellgraph.configuration.mappings[name.to_sym].select { |listener|
-          Cellgraph.configuration.dispatcher[listener.to_sym]
+          Cellgraph.dispatcher[listener.to_sym]
         }.map { |listener|
-          Cellgraph.configuration.dispatcher[listener.to_sym].deletable?(self)
+          Cellgraph.dispatcher[listener.to_sym].deletable?(self)
         }.all? { |value|
           value === true
         }

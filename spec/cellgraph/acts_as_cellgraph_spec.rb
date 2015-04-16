@@ -112,8 +112,7 @@ module Cellgraph
                 :standard_childable
               ]
           }
-          Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
-          config.dispatcher = Dispatcher::instance
+          Cellgraph.dispatcher.register_listener(:standard_childable, StandardChildableListener.new)
         end
       }
       it "return true when there are no listener" do
@@ -133,8 +132,7 @@ module Cellgraph
                 :customized_childable
               ]
           }
-          Dispatcher::register_listener(:customized_childable, CustomizedChildableListener.new)
-          config.dispatcher = Dispatcher::instance
+          Cellgraph.dispatcher.register_listener(:customized_childable, CustomizedChildableListener.new)
         end
         instance = NotChildable.new
         expect(instance.send("query_deletion_listeners")).to be_falsey
@@ -150,9 +148,8 @@ module Cellgraph
                 :standard_childable
               ]
           }
-          Dispatcher::register_listener(:standard_childable, StandardChildableListener.new)
-          Dispatcher::register_listener(:not_childable, NotChildableListener.new)
-          config.dispatcher = Dispatcher::instance
+          Cellgraph.dispatcher.register_listener(:standard_childable, StandardChildableListener.new)
+          Cellgraph.dispatcher.register_listener(:not_childable, NotChildableListener.new)
         end
       }
 
@@ -161,7 +158,7 @@ module Cellgraph
           parent = NotChildable.new
           parent.save
           model = StandardChildable.new
-          expect_any_instance_of(EventInterface).to receive(:addressed_saved).and_return(true)
+          expect_any_instance_of(EventInterface).to receive(:addressed_created).and_return(true)
           model.parentable_type = "NotChildable"
           model.parentable_id = parent.id
           model.save
