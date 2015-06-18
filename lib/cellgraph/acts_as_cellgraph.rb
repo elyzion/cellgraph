@@ -57,7 +57,7 @@ module Cellgraph
     # Check if the id column is present and not null
     def has_null_cellgraph_field!
       if self.class.send("method_defined?", "cellgraph_field_id") && self.class.send("method_defined?", self.cellgraph_field_id) && !self.send(self.cellgraph_field_id).nil?
-        raise ParentPresentError.new(self.send(self.cellgraph_field_type))
+        raise ParentPresentError.new(self.send(self.cellgraph_field_type), self.send(self.cellgraph_field_id))
       end
       true
     end
