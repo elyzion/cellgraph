@@ -1,4 +1,6 @@
 require 'active_record' unless defined? ActiveRecord
+require 'cellgraph/dependents_present_error'
+require 'cellgraph/parent_present_error'
 require 'cellgraph/dispatcher'
 require 'cellgraph/config'
 require 'cellgraph/event_interface'

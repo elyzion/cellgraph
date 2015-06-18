@@ -28,8 +28,9 @@ module Cellgraph
     # that:
     # 1) Has no cellgraph_field, ie, no parent.
     # 2) and/or has no listener that object to the deletion.
+    # If the record is not deletable, it returns an exception object with the details.
     def deletable?
-      has_null_cellgraph_field && query_deletion_listeners
+      has_null_cellgraph_field! && query_deletion_listeners
     end
 
     # Same as deletable, but returns reasons for denial.
@@ -46,11 +47,18 @@ module Cellgraph
 
     # Check if the id column is present and not null
     def has_null_cellgraph_field
-      # TODO Detailed reasons for denial.
-      if self.class.send("method_defined?", "cellgraph_field_id") && self.class.send("method_defined?", self.cellgraph_field_id) && !self.send(self.cellgraph_field_id).nil?
+      begin
+        return has_null_cellgraph_field!
+      rescue Exception => e
         return false
       end
-      Cellgraph.configuration.logger.debug "No or null cellgraph field, no parent."
+    end
+
+    # Check if the id column is present and not null
+    def has_null_cellgraph_field!
+      if self.class.send("method_defined?", "cellgraph_field_id") && self.class.send("method_defined?", self.cellgraph_field_id) && !self.send(self.cellgraph_field_id).nil?
+        raise ParentPresentError.new(self.send(self.cellgraph_field_type))
+      end
       true
     end
 
@@ -59,13 +67,21 @@ module Cellgraph
     def query_deletion_listeners
       name = ActiveModel::Naming.singular(self)
       if Cellgraph.configuration.mappings.key?(name.to_sym)
-        return Cellgraph.configuration.mappings[name.to_sym].select { |listener|
+        objectors = []
+        Cellgraph.configuration.mappings[name.to_sym].select { |listener|
           Cellgraph.dispatcher[listener.to_sym]
         }.map { |listener|
-          Cellgraph.dispatcher[listener.to_sym].deletable?(self)
-        }.all? { |value|
-          value === true
+          value = Cellgraph.dispatcher[listener.to_sym].deletable?(self)
+          if !value
+            objectors.push listener.to_sym
+          end
+          value
         }
+
+        if objectors.empty?
+          return true
+        end
+        raise DependentsPresentError.new objectors
       end
       Cellgraph.configuration.logger.warn "No listener(s) registered for #{name}"
       true

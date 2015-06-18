@@ -80,7 +80,7 @@ module Cellgraph
     describe ".deletable" do
       it "calls has_null_cellgraph_field and query_deletion_listeners" do
         instance = StandardChildable.new
-        expect(instance).to receive(:has_null_cellgraph_field).and_return(true)
+        expect(instance).to receive(:has_null_cellgraph_field!).and_return(true)
         expect(instance).to receive(:query_deletion_listeners).and_return(true)
         instance.deletable?
       end
@@ -95,11 +95,11 @@ module Cellgraph
         instance = NotChildable.new
         expect(instance.send("has_null_cellgraph_field")).to be_truthy
       end
-      it "return false when there is a parent" do
+      it "return ParentPresentError when there is a parent" do
         instance = StandardChildable.new
         instance.parentable_id = 1
         instance.parentable_type = "a"
-        expect(instance.send("has_null_cellgraph_field")).to be_falsey
+        expect{instance.send("has_null_cellgraph_field!")}.to raise_error(ParentPresentError)
       end
     end
 
@@ -124,7 +124,7 @@ module Cellgraph
         expect_any_instance_of(EventInterface).to receive(:deletable?).and_return(true)
         expect(instance.send("query_deletion_listeners")).to be_truthy
       end
-      it "returns false when a listener protests" do
+      it "returns DependentPresentError when a listener protests" do
         Cellgraph.configure do |config|
           config.mappings = {
             not_childable:
@@ -135,7 +135,7 @@ module Cellgraph
           Cellgraph.dispatcher.register_listener(:customized_childable, CustomizedChildableListener.new)
         end
         instance = NotChildable.new
-        expect(instance.send("query_deletion_listeners")).to be_falsey
+        expect{instance.send("query_deletion_listeners")}.to raise_error(DependentsPresentError)
       end
     end
 
